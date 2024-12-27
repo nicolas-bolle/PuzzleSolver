@@ -50,7 +50,7 @@ class RowNode:
 
 
 class DLX:
-    """Creates and solves an instance of the exact cover problem
+    """Creates and solves an instance of the (generalized) exact cover problem
         using the dancing links technique for implementing Algorithm X
     https://en.wikipedia.org/wiki/Dancing_Links
     https://arxiv.org/abs/cs/0011047
@@ -60,21 +60,28 @@ class DLX:
     
     def __init__(
             self,
-            A: np.array,
+            A_primary: np.array,
+            A_secondary: np.array,
             row_names: list = None,
             column_names: list = None,
         ):
         """Initialize the dancing links problem instance
             Parameters:
-                A (np.array): 2D numpy array that specifies the exact cover problem
-                row_names (list): optional list of strings for the row names
-                column_names (list): optional list of strings for the column names
+                A_primary (np.ndarray): specifies primary constraints
+                A_secondary (np.ndarray): specifies secondary constraints
+                row_names (list[str]): optional list of strings for the row names
+                column_names (list[str]): optional list of strings for the column names
         TODO ensure we can initialize with a sparse array, maybe use scipy sparse stuff to do the math
         """
         # clean and check inputs
-        assert isinstance(A, np.ndarray)
-        assert len(A.shape) == 2
-        A = A.astype('bool')
+        assert isinstance(A_primary, np.ndarray)
+        assert len(A_primary.shape) == 2
+        A_primary = A_primary.astype('bool')
+        assert isinstance(A_secondary, np.ndarray)
+        assert len(A_secondary.shape) == 2
+        A_secondary = A_secondary.astype('bool')
+        assert len(A_primary) == len(A_secondary)
+        A = np.concat((A_primary, A_secondary), axis=1)
         n, m = A.shape
         if row_names is None:
             row_names = [str(x) for x in range(n)]
@@ -82,19 +89,20 @@ class DLX:
             column_names = [str(x) for x in range(m)]
         assert len(row_names) == n, 'Length of row_names does not match the array dimensions'
         assert len(column_names) == m, 'Length of column_names does not match the array dimensions'
+        num_primary = A_primary.shape[1]
 
         # create the sparse linked array
-        self.root = self._create_linked_array(A, row_names, column_names)
+        self.root = self._create_linked_array(A, num_primary, row_names, column_names)
 
-    def _create_linked_array(self, A: np.ndarray, row_names: list[str], column_names: list[str]) -> RootNode:
+    def _create_linked_array(self, A: np.ndarray, num_primary: int, row_names: list[str], column_names: list[str]) -> RootNode:
         """Utility to create the linked array using Node objects"""
         
         # initialize root node and column nodes
         root = RootNode()
         column_nodes = [ColumnNode(column_name) for column_name in column_names]
 
-        # insert columns into the columns doubly linked list
-        for column_node in column_nodes:
+        # insert just primary columns into the columns doubly linked list
+        for column_node in column_nodes[:num_primary]:
             root.L.R = column_node
             column_node.L = root.L
             column_node.R = root
