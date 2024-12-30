@@ -2,7 +2,6 @@
 https://en.wikipedia.org/wiki/Dancing_Links
 
 Used Chat GPT for the first draft of the code
-See the end of the file for a sample run
 """
 
 # pylint: disable=invalid-name
@@ -375,23 +374,3 @@ class ArrayDLX(DLX):
             col_names_secondary=self.col_names_secondary,
             entries=entries,
         )
-
-
-# Sample run: returns the covers A D G and B D F G
-if __name__ == "__main__":
-    A = [
-        [1, 0, 0, 1, 0, 0, 1],  # A
-        [1, 0, 0, 1, 0, 0, 0],  # B
-        [0, 0, 0, 1, 1, 0, 1],  # C
-        [0, 0, 1, 0, 1, 1, 0],  # D
-        [0, 1, 1, 0, 0, 1, 1],  # E
-        [0, 0, 0, 0, 0, 0, 1],  # F
-        [0, 1, 0, 0, 0, 0, 0],  # G
-    ]
-    A = np.array(A)
-
-    row_names = ["A", "B", "C", "D", "E", "F", "G"]
-    dlx = ArrayDLX(A, row_names)
-
-    for sol in dlx.solutions():
-        print(sol)
