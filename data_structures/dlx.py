@@ -8,7 +8,7 @@ Used Chat GPT for the first draft of the code
 
 from collections.abc import Generator
 import numpy as np
-import pandas as pd
+from data_structures.utils import check_distinct, check_disjoint, check_subset
 
 
 class Node:
@@ -92,20 +92,22 @@ class DLX:
         col_names_secondary = list(col_names_secondary)
 
         # ensure distinct names
-        self._check_distinct(row_names)
-        self._check_distinct(col_names_primary)
-        self._check_distinct(col_names_secondary)
-        self._check_distinct(col_names_primary + col_names_secondary)
+        check_distinct(row_names)
+        check_distinct(col_names_primary)
+        check_distinct(col_names_secondary)
+
+        # ensure primary and secondary cols don't overlap
+        check_disjoint(col_names_primary, col_names_secondary)
 
         # ensure distinct entries
-        self._check_distinct(entries)
+        check_distinct(entries)
 
         # ensure valid entries
-        self._check_subset(
+        check_subset(
             subset=set(entries.keys()),
             superset=set(row_names),
         )
-        self._check_subset(
+        check_subset(
             subset={
                 col_name for col_names in entries.values() for col_name in col_names
             },
@@ -124,21 +126,6 @@ class DLX:
         )
 
         self._partial_solution = []
-
-    def _check_distinct(self, objs: list):
-        """Check the objects in the list are all distinct"""
-        counts = pd.Series(objs).value_counts().sort_values(ascending=False)
-        if not counts.empty:
-            top_obj = counts.index[0]
-            top_count = counts.iloc[0]
-            assert (
-                top_count == 1
-            ), f"Expected 1 count for '{top_obj}', found {top_count}"
-
-    def _check_subset(self, subset: set, superset: set):
-        """Check the subset is a subset of the superset"""
-        extra = superset - subset
-        assert not extra, f"Extra elements found such as {next(iter(extra))}"
 
     @staticmethod
     def _initialize_dlx(
