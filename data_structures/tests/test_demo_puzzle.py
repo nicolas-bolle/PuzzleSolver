@@ -10,9 +10,9 @@ class TestDemoPuzzle(unittest.TestCase):
 
     def test(self):
         """Check we can solve the puzzle"""
-        # TODO
         board = DemoBoard()
-        board.solutions()
+        solutions = list(board.solutions())
+        assert len(solutions) == 8
 
 
 if __name__ == "__main__":
