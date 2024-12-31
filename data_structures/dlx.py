@@ -7,8 +7,10 @@ Used Chat GPT for the first draft of the code
 # pylint: disable=invalid-name
 
 from collections.abc import Generator
+
 import numpy as np
-from data_structures.utils import check_distinct, check_disjoint, check_subset
+
+from data_structures.utils import check_disjoint, check_distinct, check_subset
 
 
 class Node:
