@@ -57,18 +57,28 @@ class DemoPiece(PlacingPiece):
         # TODO inefficient, could be worth trying to improve this
         r = int(self.coords_array.max())
 
+        # the atoms on the board
         expected_atoms = set(board.atoms_primary)
 
+        # list of the placements we end up going with
         placements = []
 
+        # a record of the atoms they use, so we don't generate duplicate ones due to symmetries
+        placements_history = set()
+
         # iterate over potential placements
-        for i, j in range(-r, board.N + r):
-            for orientation in ORIENTATIONS:
-                placement = DemoPlacement(i, j, orientation)
-                atoms = self.get_atoms(board, placement)
-                # if the placement keeps us on the board, it's valid
-                if not set(atoms) - expected_atoms:
-                    placements.append(placement)
+        for i in range(-r, board.N + r):
+            for j in range(-r, board.N + r):
+                for orientation in ORIENTATIONS:
+                    placement = DemoPlacement(i, j, orientation)
+                    atoms = self.get_atoms(board, placement)
+                    # if the placement keeps us on the board, it's valid
+                    if not set(atoms) - expected_atoms:
+                        # check we haven't seen it already
+                        atoms = tuple(sorted(atom.name for atom in atoms))
+                        if atoms not in placements_history:
+                            placements_history.add(atoms)
+                            placements.append(placement)
 
         return placements
 
@@ -93,6 +103,10 @@ class DemoPiece(PlacingPiece):
                 coords_array = np.array([[-1, 0], [0, -1]], dtype=int) @ coords_array
             case "L":
                 coords_array = np.array([[0, -1], [1, 0]], dtype=int) @ coords_array
+
+        # translation
+        n = len(self.coords)
+        coords_array = coords_array + np.array([[placement.i] * n, [placement.j] * n])
 
         return [DemoSquare(i, j) for i, j in coords_array.transpose()]
 
@@ -139,7 +153,7 @@ class DemoSolution(PlacingSolution):
         A = np.zeros(shape=(3, 3), dtype="str")
         for piece, placement in self.placed_pieces:
             assert len(piece.piece_id) == 1
-            for atom in piece.get_atoms(placement):
+            for atom in piece.get_atoms(self.board, placement):
                 A[atom.i, atom.j] = piece.piece_id
         A = A.transpose()[::-1, :]
         for row in A:
@@ -169,4 +183,4 @@ class DemoBoard(PlacingBoard):
         print("...")
         print("...")
         print()
-        print(self.pieces_primary)
+        print([str(piece) for piece in self.pieces_primary])

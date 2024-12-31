@@ -27,6 +27,9 @@ class Item(ABC):
     def __lt__(self, other: Self):
         return self.name < other.name
 
+    def __hash__(self):
+        return hash(self.name)
+
 
 class PlacingBoard(ABC):
     """Generic board for a placing puzzle
@@ -84,7 +87,7 @@ class PlacingBoard(ABC):
             self._add_atom_primary(atom)
         for atom in self.atoms_secondary:
             self._add_atom_primary(atom)
-        for piece in self.atoms_primary:
+        for piece in self.pieces_primary:
             self._add_piece_primary(piece)
         for piece in self.pieces_secondary:
             self._add_piece_secondary(piece)
@@ -111,18 +114,6 @@ class PlacingBoard(ABC):
         assert isinstance(self.atoms_primary, list)
         assert isinstance(self.atoms_secondary, list)
 
-        # types
-        if self.pieces_primary:
-            assert isinstance(self.pieces_primary[0], PlacingPiece)
-        if self.pieces_secondary:
-            assert isinstance(self.pieces_secondary[0], PlacingPiece)
-        if self.pieces_tertiary:
-            assert isinstance(self.pieces_tertiary[0], PlacingPiece)
-        if self.atoms_primary:
-            assert isinstance(self.atoms_primary[0], PlacingAtom)
-        if self.atoms_secondary:
-            assert isinstance(self.atoms_secondary[0], PlacingAtom)
-
         # distinctness
         check_distinct(self.pieces_primary)
         check_distinct(self.pieces_secondary)
@@ -142,9 +133,10 @@ class PlacingBoard(ABC):
         )
 
         # check pieces use a subset of the valid atoms
-        atoms = {}
+        atoms = set()
         for piece in self.pieces_primary + self.pieces_secondary + self.pieces_tertiary:
-            atoms.update(piece.get_atoms())
+            for placement in piece.get_placements(self):
+                atoms.update(piece.get_atoms(self, placement))
         check_subset(atoms, self.atoms_primary + self.atoms_secondary)
         # TODO cache getting atoms? since this check is inefficient
 
@@ -158,7 +150,7 @@ class PlacingBoard(ABC):
 
     def _add_piece_primary(self, piece: "PlacingPiece"):
         """Add a primary piece as one row for each placement plus a primary "key" column"""
-        for placement in piece.get_placements():
+        for placement in piece.get_placements(self):
             row_name = f"{piece.name}_{placement.name}"
             self.entries[row_name] = [
                 atom.name for atom in piece.get_atoms(self, placement)
@@ -169,7 +161,7 @@ class PlacingBoard(ABC):
 
     def _add_piece_secondary(self, piece: "PlacingPiece"):
         """Add a secondary piece as its atoms plus a secondary "key" column"""
-        for placement in piece.get_placements():
+        for placement in piece.get_placements(self):
             row_name = f"{piece.name}_{placement.name}"
             self.entries[row_name] = [
                 atom.name for atom in piece.get_atoms(self, placement)
@@ -180,7 +172,7 @@ class PlacingBoard(ABC):
 
     def _add_piece_tertiary(self, piece: "PlacingPiece"):
         """Add a tertiary piece as its atoms (without a "key" column)"""
-        for placement in piece.get_placements():
+        for placement in piece.get_placements(self):
             row_name = f"{piece.name}_{placement.name}"
             self.entries[row_name] = [
                 atom.name for atom in piece.get_atoms(self, placement)
@@ -242,12 +234,12 @@ class PlacingSolution(ABC):
         """Check the solution is valid"""
         # check placements are valid
         for piece, placement in self.placed_pieces:
-            assert placement in piece.get_placements()
+            assert placement in piece.get_placements(self.board)
 
         # check primary/secondary atom constraints
         atoms = []
         for piece, placement in self.placed_pieces:
-            atoms.extend(piece.get_atoms())
+            atoms.extend(piece.get_atoms(self.board, placement))
         check_distinct(atoms)
         check_subset(atoms, self.board.atoms_primary + self.board.atoms_secondary)
         check_subset(self.board.atoms_primary, atoms)
