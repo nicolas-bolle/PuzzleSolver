@@ -1,8 +1,10 @@
 """dlx.py unit tests"""
 
 import unittest
+
 import numpy as np
-from data_structures.dlx import DLX, ArrayDLX
+
+from data_structures.dlx import ArrayDLX
 
 
 # TODO DLX test class
