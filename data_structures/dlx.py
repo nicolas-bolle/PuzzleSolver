@@ -87,6 +87,8 @@ class DLX:
         col_names_primary: primary columns (must be achieved once)
         col_names_secondary: secondary columns (can be achieved up to once)
         entries: keys are row names, values are the column names with entries
+
+        Names can also be ints, tuples, really anything hashable
         """
         # types
         row_names = list(row_names)
