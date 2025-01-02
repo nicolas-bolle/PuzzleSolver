@@ -301,10 +301,10 @@ class ArrayDLX(DLX):
     def __init__(
         self,
         A: np.ndarray,
-        row_names: list[str] = None,
+        row_names: list[str],
         col_names: list[str] = None,
         A_secondary: np.ndarray = None,
-        col_names_secondary: np.ndarray = None,
+        col_names_secondary: list[str] = None,
     ):
         """Initialize the dancing links problem instance
         Parameters:
@@ -320,11 +320,8 @@ class ArrayDLX(DLX):
         A = A.astype("bool")
         n, m = A.shape
 
-        if row_names is None:
-            row_names = [str(x) for x in range(n)]
-
         if col_names is None:
-            col_names = [str(x) for x in range(m)]
+            col_names = [f"primary_{i}" for i in range(m)]
 
         if A_secondary is None:
             A_secondary = np.zeros(shape=(n, 0), dtype=bool)
@@ -334,7 +331,7 @@ class ArrayDLX(DLX):
         n_secondary, m_secondary = A_secondary.shape
 
         if col_names_secondary is None:
-            col_names_secondary = [str(x + m) for x in range(m_secondary)]
+            col_names_secondary = [f"secondary_{i}" for i in range(m_secondary)]
 
         # dimension checks
         assert len(row_names) == n
