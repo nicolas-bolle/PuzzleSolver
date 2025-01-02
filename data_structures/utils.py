@@ -22,5 +22,5 @@ def check_disjoint(objs1: list | set, objs2: list | set):
 
 def check_subset(subset: list | set, superset: list | set):
     """Check the subset is a subset of the superset"""
-    extra = set(superset) - set(subset)
+    extra = set(subset) - set(superset)
     assert not extra, f"Extra elements found such as {next(iter(extra))}"
