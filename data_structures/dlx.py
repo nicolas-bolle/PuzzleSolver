@@ -103,9 +103,6 @@ class DLX:
         # ensure primary and secondary cols don't overlap
         check_disjoint(col_names_primary, col_names_secondary)
 
-        # ensure distinct entries
-        check_distinct(entries)
-
         # ensure valid entries
         check_subset(
             subset=set(entries.keys()),
@@ -315,8 +312,8 @@ class ArrayDLX(DLX):
             col_names_secondary (list[str]): optional secondary column names
         """
         # defaults and types
-        assert isinstance(A, np.ndarray)
-        assert len(A.shape) == 2
+        assert isinstance(A, np.ndarray), "A must be a np.ndarray"
+        assert len(A.shape) == 2, "A must be two dimensional"
         A = A.astype("bool")
         n, m = A.shape
 
@@ -325,8 +322,8 @@ class ArrayDLX(DLX):
 
         if A_secondary is None:
             A_secondary = np.zeros(shape=(n, 0), dtype=bool)
-        assert isinstance(A_secondary, np.ndarray)
-        assert len(A_secondary.shape) == 2
+        assert isinstance(A_secondary, np.ndarray), "A_secondary must be a np.ndarray"
+        assert len(A_secondary.shape) == 2, "A_secondary must be two dimensional"
         A_secondary = A_secondary.astype("bool")
         n_secondary, m_secondary = A_secondary.shape
 
@@ -334,10 +331,14 @@ class ArrayDLX(DLX):
             col_names_secondary = [f"secondary_{i}" for i in range(m_secondary)]
 
         # dimension checks
-        assert len(row_names) == n
-        assert len(col_names) == m
-        assert n == n_secondary
-        assert len(col_names_secondary) == m_secondary
+        assert (
+            n == n_secondary
+        ), f"A has {n} rows while A_secondary has {n_secondary} rows"
+        assert len(row_names) == n, f"{len(row_names)} rows specified, expected {n}"
+        assert len(col_names) == m, f"{len(col_names)} columns specified, expected {m}"
+        assert (
+            len(col_names_secondary) == m_secondary
+        ), f"{len(col_names_secondary)} secondary columns specified, expected {m_secondary}"
 
         # set fields
         self.A = A
