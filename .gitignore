@@ -1,6 +1,9 @@
 # scratchwork file
 scratchwork.ipynb
 
+# booklet of Kanoodle puzzles
+kanoodle_booklet.pdf
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
