@@ -242,11 +242,19 @@ class PlacingSolution(ABC):
         check_subset(atoms, self.board.atoms_primary + self.board.atoms_secondary)
         check_subset(self.board.atoms_primary, atoms)
 
-        # check primary/secondary piece constraints
+        # check primary/secondary/tertiary piece constraints
         pieces = [piece for piece, _ in self.placed_pieces]
-        check_distinct(pieces)
-        check_subset(pieces, self.board.pieces_primary + self.board.pieces_secondary)
+        check_subset(
+            pieces,
+            self.board.pieces_primary
+            + self.board.pieces_secondary
+            + self.board.pieces_tertiary,
+        )
         check_subset(self.board.pieces_primary, pieces)
+        pieces_non_tertiary = [
+            piece for piece in pieces if piece not in self.board.pieces_tertiary
+        ]
+        check_distinct(pieces_non_tertiary)
 
     @abstractmethod
     def visualize(self):
