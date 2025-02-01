@@ -12,6 +12,7 @@ from data_structures.placing_puzzle import (
     PlacingPlacement,
     PlacingSolution,
 )
+from data_structures.utils import Axes, Figure, visualize_color_grid
 
 
 class GridSquare(PlacingAtom):
@@ -122,7 +123,7 @@ class GridPiece(PlacingPiece):
 
         return [GridSquare(i, j) for i, j in coords_array.transpose()]
 
-    def visualize(self):
+    def visualize(self) -> tuple[Figure, Axes]:
         """Print out a visualization"""
         # transform the coordinates array so i,j>=0 and i=0 is the first thing we want to print
         smallest_i = self.coords_array[0, :].min()
@@ -135,15 +136,13 @@ class GridPiece(PlacingPiece):
         )
 
         # put into an array
-        n = max(i for i, _ in coords_transformed)
-        m = max(j for _, j in coords_transformed)
-        str_array = np.full(shape=(n, m), fill_value="  ", dtype=str)
+        n = max(i for i, _ in coords_transformed) + 1
+        m = max(j for _, j in coords_transformed) + 1
+        color_grid = np.full(shape=(n, m), fill_value="black", dtype=object)
         for i, j in coords_transformed:
-            str_array[i, j] = "[]"
+            color_grid[i, j] = self.piece_color
 
-        # print
-        for row in str_array:
-            print("".join(row))
+        return visualize_color_grid(color_grid)
 
 
 class GridSmallLPiece(GridPiece):
@@ -197,34 +196,18 @@ class GridFourPiece(GridPiece):
 class GridSolution(PlacingSolution):
     """A solution on the grid board"""
 
-    def visualize(self):
+    def visualize(self) -> tuple[Figure, Axes]:
         """Visualize the solution"""
-        A = np.full(
+        color_grid = np.full(
             shape=(self.board.N, self.board.M),
             fill_value="black",
             dtype=object,
         )
         for piece, placement in self.placed_pieces:
             for atom in piece.get_atoms(self.board, placement):
-                A[atom.i, atom.j] = piece.piece_color
-        # A = A.transpose()[::-1, :]
+                color_grid[atom.i, atom.j] = piece.piece_color
 
-        fig, ax = plt.subplots()
-
-        for i in range(A.shape[0]):
-            for j in range(A.shape[1]):
-                ax.add_patch(
-                    plt.Rectangle((i, j), 1, 1, facecolor=A[i, j], edgecolor="black")
-                )
-
-        ax.set_xlim(0, A.shape[0])
-        ax.set_ylim(0, A.shape[1])
-        ax.set_xticks([])
-        ax.set_yticks([])
-        ax.set_aspect("equal", adjustable="box")
-        ax.grid(True)
-
-        return fig
+        return visualize_color_grid(color_grid)
 
 
 class GridBoard(PlacingBoard, ABC):
@@ -248,30 +231,22 @@ class GridBoard(PlacingBoard, ABC):
 
     def visualize(self):
         """Visualize the board"""
-        print(f"{self.N} x {self.M} Grid board")
-        for _ in range(self.M):
-            print("." * self.N)
+        color_grid = np.full(
+            shape=(self.N, self.M),
+            fill_value="black",
+            dtype=object,
+        )
+        fig, ax = visualize_color_grid(color_grid)
+        ax.set_title(f"{self.N} x {self.M} grid board")
 
-        print()
-        if self.pieces_primary:
-            print("Primary pieces")
-            for piece in self.pieces_primary:
-                piece.visualize()
-        else:
-            print("No primary pieces")
+        for piece in self.pieces_primary:
+            fig, ax = piece.visualize()
+            ax.set_title(f"Primary piece: {piece.piece_id}")
 
-        print()
-        if self.pieces_secondary:
-            print("Secondary pieces")
-            for piece in self.pieces_secondary:
-                piece.visualize()
-        else:
-            print("No secondary pieces")
+        for piece in self.pieces_secondary:
+            fig, ax = piece.visualize()
+            ax.set_title(f"SEcondary piece: {piece.piece_id}")
 
-        print()
-        if self.pieces_tertiary:
-            print("Tertiary pieces")
-            for piece in self.pieces_tertiary:
-                piece.visualize()
-        else:
-            print("No tertiary pieces")
+        for piece in self.pieces_tertiary:
+            fig, ax = piece.visualize()
+            ax.set_title(f"Tertiary piece: {piece.piece_id}")

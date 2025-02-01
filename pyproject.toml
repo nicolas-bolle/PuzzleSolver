@@ -1,3 +1,5 @@
 [tool.ruff.lint]
-# Disable fix for unused imports (`F401`).
-unfixable = ["F401"]
+unfixable = ["F401"]  # allow unused imports
+
+[tool.ruff]
+exclude = ["*.ipynb"]  # Ignore .ipynb files
