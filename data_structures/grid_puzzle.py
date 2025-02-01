@@ -14,6 +14,8 @@ from data_structures.placing_puzzle import (
 )
 from data_structures.utils import Axes, Figure, visualize_color_grid
 
+DEFAULT_BACKGROUND_COLOR = "sandybrown"
+
 
 class GridSquare(PlacingAtom):
     """A square on a board"""
@@ -123,22 +125,24 @@ class GridPiece(PlacingPiece):
 
         return [GridSquare(i, j) for i, j in coords_array.transpose()]
 
-    def visualize(self) -> tuple[Figure, Axes]:
+    def visualize(
+        self, background_color: str = DEFAULT_BACKGROUND_COLOR
+    ) -> tuple[Figure, Axes]:
         """Print out a visualization"""
-        # transform the coordinates array so i,j>=0 and i=0 is the first thing we want to print
-        smallest_i = self.coords_array[0, :].min()
-        largest_j = self.coords_array[1, :].max()
+        # transform the coordinates array so i,j>=0
+        i_min = self.coords_array[0, :].min()
+        j_min = self.coords_array[1, :].min()
         coords_transformed = list(
             zip(
-                largest_j - self.coords_array[1, :],
-                self.coords_array[0, :] - smallest_i,
+                self.coords_array[0, :] - i_min,
+                self.coords_array[1, :] - j_min,
             )
         )
 
         # put into an array
         n = max(i for i, _ in coords_transformed) + 1
         m = max(j for _, j in coords_transformed) + 1
-        color_grid = np.full(shape=(n, m), fill_value="black", dtype=object)
+        color_grid = np.full(shape=(n, m), fill_value=background_color, dtype=object)
         for i, j in coords_transformed:
             color_grid[i, j] = self.piece_color
 
@@ -196,11 +200,13 @@ class GridFourPiece(GridPiece):
 class GridSolution(PlacingSolution):
     """A solution on the grid board"""
 
-    def visualize(self) -> tuple[Figure, Axes]:
+    def visualize(
+        self, background_color: str = DEFAULT_BACKGROUND_COLOR
+    ) -> tuple[Figure, Axes]:
         """Visualize the solution"""
         color_grid = np.full(
             shape=(self.board.N, self.board.M),
-            fill_value="black",
+            fill_value=background_color,
             dtype=object,
         )
         for piece, placement in self.placed_pieces:
@@ -229,11 +235,11 @@ class GridBoard(PlacingBoard, ABC):
             GridSquare(i, j) for i in range(self.N) for j in range(self.M)
         ]
 
-    def visualize(self):
+    def visualize(self, background_color: str = DEFAULT_BACKGROUND_COLOR):
         """Visualize the board"""
         color_grid = np.full(
             shape=(self.N, self.M),
-            fill_value="black",
+            fill_value=background_color,
             dtype=object,
         )
         fig, ax = visualize_color_grid(color_grid)
