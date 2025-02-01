@@ -2,6 +2,7 @@
 
 from abc import ABC
 
+import matplotlib.pyplot as plt
 import numpy as np
 
 from data_structures.placing_puzzle import (
@@ -198,17 +199,32 @@ class GridSolution(PlacingSolution):
 
     def visualize(self):
         """Visualize the solution"""
-        assert len(self.placed_pieces) == 3
-        A = np.zeros(shape=(3, 3), dtype="str")
+        A = np.full(
+            shape=(self.board.N, self.board.M),
+            fill_value="black",
+            dtype=object,
+        )
         for piece, placement in self.placed_pieces:
-            assert len(piece.piece_id) == 1
             for atom in piece.get_atoms(self.board, placement):
-                A[atom.i, atom.j] = piece.piece_id
-        A = A.transpose()[::-1, :]
-        for row in A:
-            print("".join(row))
+                A[atom.i, atom.j] = piece.piece_color
+        # A = A.transpose()[::-1, :]
 
-        # TODO but how do I visualize solutions??
+        fig, ax = plt.subplots()
+
+        for i in range(A.shape[0]):
+            for j in range(A.shape[1]):
+                ax.add_patch(
+                    plt.Rectangle((i, j), 1, 1, facecolor=A[i, j], edgecolor="black")
+                )
+
+        ax.set_xlim(0, A.shape[0])
+        ax.set_ylim(0, A.shape[1])
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.set_aspect("equal", adjustable="box")
+        ax.grid(True)
+
+        return fig
 
 
 class GridBoard(PlacingBoard, ABC):

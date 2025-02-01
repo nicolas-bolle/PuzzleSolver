@@ -17,9 +17,9 @@ class Demo1GridBoard(GridBoard):
     N = 3
     M = 3
     pieces_primary = [
-        GridSmallLPiece("L", "blue"),
-        GridTPiece("T", "orange"),
-        GridTwoPiece("I", "black"),
+        GridSmallLPiece("L", "tab:blue"),
+        GridTPiece("T", "tab:orange"),
+        GridTwoPiece("I", "tab:gray"),
     ]
     pieces_secondary = []
     pieces_tertiary = []
@@ -31,9 +31,24 @@ class Demo2GridBoard(GridBoard):
     N = 3
     M = 3
     pieces_primary = [
-        GridSmallLPiece("L", "blue"),
-        GridTPiece("T", "orange"),
-        GridThreePiece("I", "black"),
+        GridSmallLPiece("L", "tab:blue"),
+        GridTPiece("T", "tab:orange"),
+        GridThreePiece("I", "tab:gray"),
+    ]
+    pieces_secondary = []
+    pieces_tertiary = []
+
+
+class Demo3GridBoard(GridBoard):
+    """4x3 demo board"""
+
+    N = 4
+    M = 3
+    pieces_primary = [
+        GridSmallLPiece("L", "tab:blue"),
+        GridTPiece("T", "tab:orange"),
+        GridTwoPiece("2", "tab:gray"),
+        GridThreePiece("3", "tab:green"),
     ]
     pieces_secondary = []
     pieces_tertiary = []
