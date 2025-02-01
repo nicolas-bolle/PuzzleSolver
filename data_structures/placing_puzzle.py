@@ -68,7 +68,6 @@ class PlacingBoard(ABC):
     @abstractmethod
     def visualize(self):
         """Visualize the board"""
-        pass
 
     def solutions(self) -> Generator["PlacingSolution", None, None]:
         """Generator for solutions to the exact cover problem"""
@@ -86,7 +85,7 @@ class PlacingBoard(ABC):
         for atom in self.atoms_primary:
             self._add_atom_primary(atom)
         for atom in self.atoms_secondary:
-            self._add_atom_primary(atom)
+            self._add_atom_secondary(atom)
         for piece in self.pieces_primary:
             self._add_piece_primary(piece)
         for piece in self.pieces_secondary:
@@ -138,7 +137,6 @@ class PlacingBoard(ABC):
             for placement in piece.get_placements(self):
                 atoms.update(piece.get_atoms(self, placement))
         check_subset(atoms, self.atoms_primary + self.atoms_secondary)
-        # TODO cache getting atoms? since this check is inefficient
 
     def _add_atom_primary(self, atom: "PlacingAtom"):
         """Add a primary atom as a primary column"""

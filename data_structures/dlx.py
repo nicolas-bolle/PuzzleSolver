@@ -60,8 +60,8 @@ class RowNode:
 
 class DLX:
     """Solves an instance of the (generalized) exact cover problem
-        using the dancing links technique for implementing Algorithm X
-    The problem is specified via a row-first sparse representation
+    using the dancing links implementation of Algorithm X.
+    The problem is specified via a row-first sparse representation.
     https://en.wikipedia.org/wiki/Dancing_Links
     https://arxiv.org/abs/cs/0011047
     """
@@ -331,14 +331,14 @@ class ArrayDLX(DLX):
             col_names_secondary = [f"secondary_{i}" for i in range(m_secondary)]
 
         # dimension checks
-        assert (
-            n == n_secondary
-        ), f"A has {n} rows while A_secondary has {n_secondary} rows"
+        assert n == n_secondary, (
+            f"A has {n} rows while A_secondary has {n_secondary} rows"
+        )
         assert len(row_names) == n, f"{len(row_names)} rows specified, expected {n}"
         assert len(col_names) == m, f"{len(col_names)} columns specified, expected {m}"
-        assert (
-            len(col_names_secondary) == m_secondary
-        ), f"{len(col_names_secondary)} secondary columns specified, expected {m_secondary}"
+        assert len(col_names_secondary) == m_secondary, (
+            f"{len(col_names_secondary)} secondary columns specified, expected {m_secondary}"
+        )
 
         # set fields
         self.A = A

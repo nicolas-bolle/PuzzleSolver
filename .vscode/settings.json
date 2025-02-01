@@ -8,11 +8,14 @@
   ],
   "python.testing.pytestEnabled": false,
   "python.testing.unittestEnabled": true,
+  "python.analysis.ignore": ["*"],  // turn of pylance messages
   "[python]": {
-    "editor.codeActionsOnSave": {
-      "source.fixAll.ruff": "explicit",
-      "source.organizeImports.ruff": "explicit"
+      "editor.formatOnType": true,
+      "editor.formatOnSave": true,
+      "editor.defaultFormatter": "charliermarsh.ruff",
+      "editor.codeActionsOnSave": {
+        "source.fixAll": "explicit",
+        "source.organizeImports": "explicit"
+      }
     }
-  },
-  "pylint.args": ["--disable=C0103"]
 }
