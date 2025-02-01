@@ -34,7 +34,7 @@ def visualize_color_grid(
     color_grid: np.ndarray,
 ) -> tuple[Figure, Axes]:
     """Helper function to turn a np array of color strings into a pyplot figure"""
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(1, 1))
 
     for i in range(color_grid.shape[0]):
         for j in range(color_grid.shape[1]):
