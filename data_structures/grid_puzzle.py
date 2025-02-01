@@ -245,7 +245,7 @@ class GridBoard(PlacingBoard, ABC):
 
         for piece in self.pieces_secondary:
             fig, ax = piece.visualize()
-            ax.set_title(f"SEcondary piece: {piece.piece_id}")
+            ax.set_title(f"Secondary piece: {piece.piece_id}")
 
         for piece in self.pieces_tertiary:
             fig, ax = piece.visualize()

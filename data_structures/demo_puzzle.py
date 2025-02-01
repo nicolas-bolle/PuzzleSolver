@@ -52,3 +52,33 @@ class Demo3GridBoard(GridBoard):
     ]
     pieces_secondary = []
     pieces_tertiary = []
+
+
+class Demo4GridBoard(GridBoard):
+    """3x2 demo board with secondary pieces"""
+
+    N = 3
+    M = 2
+    pieces_primary = []
+    pieces_secondary = [
+        GridBigLPiece("L", "tab:red"),
+        GridTwoPiece("2", "tab:orange"),
+        GridSmallLPiece("l.1", "tab:olive"),
+        GridSmallLPiece("l.2", "tab:green"),
+        GridThreePiece("3.1", "tab:blue"),
+        GridThreePiece("3.2", "tab:purple"),
+        GridFourPiece("4", "tab:pink"),
+    ]
+    pieces_tertiary = []
+
+
+class Demo5GridBoard(GridBoard):
+    """3x2 demo board with tertiary pieces"""
+
+    N = 3
+    M = 2
+    pieces_primary = []
+    pieces_secondary = []
+    pieces_tertiary = [
+        GridTwoPiece("2", "tab:blue"),
+    ]
