@@ -201,7 +201,7 @@ class GridSolution(PlacingSolution):
     """A solution on the grid board"""
 
     def visualize(
-        self, background_color: str = DEFAULT_BACKGROUND_COLOR
+        self, background_color: str = DEFAULT_BACKGROUND_COLOR, figsize=(1, 1)
     ) -> tuple[Figure, Axes]:
         """Visualize the solution"""
         color_grid = np.full(
@@ -213,7 +213,7 @@ class GridSolution(PlacingSolution):
             for atom in piece.get_atoms(self.board, placement):
                 color_grid[atom.i, atom.j] = piece.piece_color
 
-        return visualize_color_grid(color_grid)
+        return visualize_color_grid(color_grid, figsize)
 
 
 class GridBoard(PlacingBoard, ABC):
