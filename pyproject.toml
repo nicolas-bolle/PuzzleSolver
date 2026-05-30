@@ -1,4 +1,17 @@
 
+[project]
+name = 'puzzle-solver'
+version = '0.1.0'
+description = "Puzzle solving using Algorithm X (dancing links)"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "matplotlib>=3.10.9",
+    "numpy>=2.4.6",
+]
+license = "MIT"
+license-files = ["LICENSE"]
+
 [tool.ruff]
 # Target Python version
 target-version = "py310"

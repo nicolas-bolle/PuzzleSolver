@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from collections.abc import Generator
 from functools import total_ordering
-from typing import Self, Type
+from typing import Self
 
 from data_structures.dlx import DLX
 from data_structures.utils import check_disjoint, check_distinct, check_subset
@@ -50,7 +50,7 @@ class PlacingBoard(ABC):
     """
 
     # must be specified by the subclass
-    SolutionClass: Type["PlacingSolution"]
+    SolutionClass: type["PlacingSolution"]
     pieces_primary: list["PlacingPiece"]
     pieces_secondary: list["PlacingPiece"]
     pieces_tertiary: list["PlacingPiece"]

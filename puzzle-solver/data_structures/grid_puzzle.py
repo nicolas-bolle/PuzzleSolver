@@ -14,6 +14,7 @@ from data_structures.placing_puzzle import (
 )
 from data_structures.utils import Axes, Figure, visualize_color_grid
 
+
 DEFAULT_BACKGROUND_COLOR = "sandybrown"
 
 
