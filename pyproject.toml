@@ -13,7 +13,6 @@ exclude = [
     ".pytest_cache",
     ".ruff_cache",
     ".venv",
-    ".ipynb"
     "venv",
     "dist",
     "build",
