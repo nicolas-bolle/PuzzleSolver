@@ -1,7 +1,7 @@
 
 [project]
 name = 'puzzle-solver'
-version = '0.1.0'
+version = '0.2.0'
 description = "Puzzle solving using Algorithm X (dancing links)"
 readme = "README.md"
 requires-python = ">=3.12"
