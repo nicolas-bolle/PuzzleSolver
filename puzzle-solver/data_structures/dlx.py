@@ -184,8 +184,13 @@ class RowSparseGeneralizedDLX(DLX):
         )
 
         # ensure nontrivial rows (every row has at least one primary column)
-        for col_names in entries.values():
-            check_overlap(col_names, col_names_primary)
+        for row_name, col_names in entries.items():
+            try:
+                check_overlap(col_names, col_names_primary)
+            except AssertionError as e:
+                raise AssertionError(
+                    f"Row '{row_name}' is trivial: does not include any primary columns"
+                ) from e
 
         self.row_names = row_names
         self.col_names_primary = col_names_primary
@@ -274,7 +279,7 @@ class RowSparseGeneralizedDLX(DLX):
 
         # if the matrix has no columns then we have a solution
         # yield the solution and exit this leaf of the search
-        if self.root_node.R == self.root_node:
+        if self._root_node.R == self._root_node:
             yield sorted(self._partial_solution.copy())
             return
 
@@ -315,8 +320,8 @@ class RowSparseGeneralizedDLX(DLX):
         """Pick a column with the smallest number of 1s."""
         min_size = np.inf
         chosen_column = None
-        col_node = self.root_node.R
-        while col_node != self.root_node:
+        col_node = self._root_node.R
+        while col_node != self._root_node:
             if col_node.size < min_size:
                 min_size = col_node.size
                 chosen_column = col_node
@@ -390,7 +395,7 @@ class ArrayDLX(RowSparseGeneralizedDLX):
         entries = {}
         for row_name, row in zip(self.row_names, A_combined, strict=True):
             col_idxs = np.where(row)[0]
-            row_col_names = list(col_names_combined_array[col_idxs])
+            row_col_names = col_names_combined_array[col_idxs].tolist()
             entries[row_name] = row_col_names
 
         # parent init

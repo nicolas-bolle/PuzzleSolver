@@ -28,7 +28,7 @@ def test_row_sparse_generalized_dlx_basic_problem():
     )
 
     solutions_desired = {"ADG", "BDFG"}
-    solutions_actual = {"".join(soln) for soln in dlx.solutions()}
+    solutions_actual = {"".join(soln) for soln in dlx.generate_solutions()}
 
     assert solutions_actual == solutions_desired
 
@@ -43,7 +43,7 @@ def test_row_sparse_generalized_dlx_data_checks():
             col_names_secondary=["col2"],
             entries={},
         )
-    assert str(e.exception) == "Expected 1 count for 'row', found 2"
+    assert str(e.value) == "Elements are not distinct"
 
     # column names
     with pytest.raises(AssertionError) as e:
@@ -53,7 +53,7 @@ def test_row_sparse_generalized_dlx_data_checks():
             col_names_secondary=["col2"],
             entries={},
         )
-    assert str(e.exception) == "Expected 1 count for 'col1', found 2"
+    assert str(e.value) == "Elements are not distinct"
 
     with pytest.raises(AssertionError) as e:
         RowSparseGeneralizedDLX(
@@ -62,7 +62,7 @@ def test_row_sparse_generalized_dlx_data_checks():
             col_names_secondary=["col2", "col2"],
             entries={},
         )
-    assert str(e.exception) == "Expected 1 count for 'col2', found 2"
+    assert str(e.value) == "Elements are not distinct"
 
     with pytest.raises(AssertionError) as e:
         RowSparseGeneralizedDLX(
@@ -71,7 +71,7 @@ def test_row_sparse_generalized_dlx_data_checks():
             col_names_secondary=["col1"],
             entries={},
         )
-    assert str(e.exception) == "Overlapping elements found such as 'col1'"
+    assert str(e.value) == "Overlapping elements found such as 'col1'"
 
     # entries
     with pytest.raises(AssertionError) as e:
@@ -81,7 +81,7 @@ def test_row_sparse_generalized_dlx_data_checks():
             col_names_secondary=["col2"],
             entries={"row1": ["col1"]},
         )
-    assert str(e.exception) == "Extra elements found such as 'row1'"
+    assert str(e.value) == "Extra elements found such as 'row1'"
 
     with pytest.raises(AssertionError) as e:
         RowSparseGeneralizedDLX(
@@ -90,7 +90,7 @@ def test_row_sparse_generalized_dlx_data_checks():
             col_names_secondary=["col2"],
             entries={"row": ["col3"]},
         )
-    assert str(e.exception) == "Extra elements found such as 'col3'"
+    assert str(e.value) == "Extra elements found such as 'col3'"
 
     # successful init
     RowSparseGeneralizedDLX(
@@ -118,16 +118,14 @@ def test_array_dlx_basic_problem():
     dlx = ArrayDLX(A=A, row_names=row_names)
 
     solutions_desired = {"ADG", "BDFG"}
-    solutions_actual = {"".join(sorted(soln)) for soln in dlx.solutions()}
+    solutions_actual = {"".join(sorted(soln)) for soln in dlx.generate_solutions()}
 
     assert solutions_actual == solutions_desired
 
 
 def test_array_dlx_secondary_problem():
-    """Exact problem with secondary constraints
-    The secondary columns are optional to cover, and won't be covered if not necessary
-    Thus H is never in any solutions since it only covers secondary columns
-    And CFG is not a solution since it would double cover a secondary cover
+    """Exact problem with secondary constraints.
+    The secondary columns are optional to cover, and won't be covered if not necessary.
     """
     A = [
         [1, 1, 0, 0],
@@ -137,7 +135,6 @@ def test_array_dlx_secondary_problem():
         [1, 0, 0, 1],
         [1, 0, 0, 0],
         [0, 0, 0, 1],
-        [0, 0, 0, 0],
     ]
     A_secondary = [
         [0],
@@ -147,17 +144,16 @@ def test_array_dlx_secondary_problem():
         [1],
         [1],
         [1],
-        [1],
     ]
     A = np.array(A)
     A_secondary = np.array(A_secondary)
 
-    row_names = ["A", "B", "C", "D", "E", "F", "G", "H"]
+    row_names = ["A", "B", "C", "D", "E", "F", "G"]
 
     dlx = ArrayDLX(A=A, row_names=row_names, A_secondary=A_secondary)
 
     solutions_desired = {"AB", "CD", "CE"}
-    solutions_actual = {"".join(sorted(soln)) for soln in dlx.solutions()}
+    solutions_actual = {"".join(sorted(soln)) for soln in dlx.generate_solutions()}
 
     assert solutions_actual == solutions_desired
 
@@ -167,19 +163,23 @@ def test_array_dlx_data_checks():
     # array checks
     with pytest.raises(AssertionError) as e:
         ArrayDLX(A=[[]], row_names=["row"])
-    assert str(e.exception) == "A must be a np.ndarray"
+    assert str(e.value) == "A must be a np.ndarray"
 
     with pytest.raises(AssertionError) as e:
         ArrayDLX(A=np.array([[]]), row_names=["row"], A_secondary=[[]])
-    assert str(e.exception) == "A_secondary must be a np.ndarray"
+    assert str(e.value) == "A_secondary must be a np.ndarray"
 
     with pytest.raises(AssertionError) as e:
         ArrayDLX(A=np.array([]), row_names=["row"])
-    assert str(e.exception) == "A must be two dimensional"
+    assert str(e.value) == "A must be two dimensional"
 
     with pytest.raises(AssertionError) as e:
         ArrayDLX(A=np.array([[]]), row_names=["row"], A_secondary=np.array([]))
-    assert str(e.exception) == "A_secondary must be two dimensional"
+    assert str(e.value) == "A_secondary must be two dimensional"
+
+    with pytest.raises(AssertionError) as e:
+        ArrayDLX(A=np.array([[0, 0]]), row_names=["row"], A_secondary=np.array([[1]]))
+    assert str(e.value) == "Row 'row' is trivial: does not include any primary columns"
 
     with pytest.raises(AssertionError) as e:
         ArrayDLX(
@@ -187,7 +187,7 @@ def test_array_dlx_data_checks():
             row_names=["row1", "row2"],
             A_secondary=np.array([[0]]),
         )
-    assert str(e.exception) == "A has 2 rows while A_secondary has 1 rows"
+    assert str(e.value) == "A has 2 rows while A_secondary has 1 rows"
 
     # name checks
     with pytest.raises(AssertionError) as e:
@@ -196,7 +196,7 @@ def test_array_dlx_data_checks():
             row_names=["row"],
             A_secondary=np.array([[0], [0]]),
         )
-    assert str(e.exception) == "1 rows specified, expected 2"
+    assert str(e.value) == "1 rows specified, expected 2"
 
     with pytest.raises(AssertionError) as e:
         ArrayDLX(
@@ -205,7 +205,7 @@ def test_array_dlx_data_checks():
             col_names=["col"],
             A_secondary=np.array([[0], [0]]),
         )
-    assert str(e.exception) == "1 columns specified, expected 2"
+    assert str(e.value) == "1 columns specified, expected 2"
 
     with pytest.raises(AssertionError) as e:
         ArrayDLX(
@@ -215,14 +215,14 @@ def test_array_dlx_data_checks():
             A_secondary=np.array([[0], [0]]),
             col_names_secondary=["col3", "col4"],
         )
-    assert str(e.exception) == "2 secondary columns specified, expected 1"
+    assert str(e.value) == "2 secondary columns specified, expected 1"
 
     # successful init
     ArrayDLX(
-        A=np.array([[0, 0], [0, 0]]),
+        A=np.array([[1, 0], [0, 1]]),
         row_names=["row1", "row2"],
         col_names=["col1", "col2"],
-        A_secondary=np.array([[0], [0]]),
+        A_secondary=np.array([[1], [0]]),
         col_names_secondary=["col3"],
     )
 
@@ -231,13 +231,13 @@ def test_array_dlx_defaults():
     """Check defaults are as expected"""
     # column names
     dlx = ArrayDLX(
-        A=np.array([[0, 0, 0]]), A_secondary=np.array([[0, 0]]), row_names=["row"]
+        A=np.array([[1, 0, 0]]), A_secondary=np.array([[0, 0]]), row_names=["row"]
     )
     assert dlx.col_names == ["primary_0", "primary_1", "primary_2"]
     assert dlx.col_names_secondary == ["secondary_0", "secondary_1"]
 
     # secondary constraints
-    dlx = ArrayDLX(A=np.array([[0, 0, 0]]), row_names=["row"])
+    dlx = ArrayDLX(A=np.array([[1, 0, 0]]), row_names=["row"])
     assert isinstance(dlx.A_secondary, np.ndarray)
     assert dlx.A_secondary.shape == (1, 0)
 
