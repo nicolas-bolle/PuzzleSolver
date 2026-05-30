@@ -1,5 +1,57 @@
-[tool.ruff.lint]
-unfixable = ["F401"]  # allow unused imports
 
 [tool.ruff]
-exclude = ["*.ipynb"]  # Ignore .ipynb files
+# Target Python version
+target-version = "py310"
+
+# Set the maximum line length
+line-length = 88
+
+# Exclude common directories
+exclude = [
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
+    ".ipynb"
+    "venv",
+    "dist",
+    "build",
+]
+
+[tool.ruff.lint]
+# Fixable rules can be automatically fixed by ruff
+fixable = ["ALL"]
+unfixable = [
+    "F401", # allow unused imports
+]
+
+# Choose rule groups to enable
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort (import sorting)
+    "B",   # flake8-bugbear (common bugs)
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade (modern Python syntax)
+    "ARG", # flake8-unused-arguments
+    "PT",  # flake8-pytest-style
+]
+
+# Rules to ignore explicitly
+ignore = [
+    "E501", # Line too long (handled by formatter)
+]
+
+[tool.ruff.lint.isort]
+# Combine standard library, third-party, and first-party imports automatically
+combine-as-imports = true
+lines-after-imports = 2
+
+[tool.ruff.format]
+# Enable the Ruff formatter (Black-compatible)
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
